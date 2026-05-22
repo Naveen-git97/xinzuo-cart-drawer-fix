@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Drawer - Enhanced UI Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1e;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            margin-bottom: 40px;
+        }
+
+        .demo-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #ffd380;
+        }
+
+        .demo-header p {
+            font-size: 16px;
+            color: #c9c9cc;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .demo-section {
+            background: #292a33;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .demo-label {
+            padding: 16px 20px;
+            background: #1a1a1e;
+            border-bottom: 2px solid #ffd380;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Cart Drawer Dialog */
+        .cart-drawer {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            height: 600px;
+            margin: 0 auto;
+            background: #1a1a1e;
+            border-radius: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-drawer__inner {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .cart-drawer__header {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-drawer__heading {
+            font-size: 20px;
+            font-weight: 600;
+            font-family: "Sen", sans-serif;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .close-button:hover {
+            opacity: 0.7;
+        }
+
+        .cart-drawer__content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+        }
+
+        /* Empty State */
+        .cart-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 24px;
+            text-align: center;
+        }
+
+        .cart-drawer__heading--empty {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .cart-empty-state__description {
+            font-size: 16px;
+            color: #c9c9cc;
+            line-height: 1.5;
+        }
+
+        .cart-empty-state__button {
+            background-color: #ffd380;
+            color: #1a1a1e;
+            padding: 12px 32px;
+            font-family: "Sen", sans-serif;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .cart-empty-state__button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .cart-empty-state__button:active {
+            transform: translateY(0);
+        }
+
+        /* Cart Items */
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cart-item {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .cart-item__image {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2a3f5f 0%, #1a1a1e 100%);
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .cart-item__content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cart-item__title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cart-item__price {
+            font-size: 14px;
+            color: #c9c9cc;
+        }
+
+        .cart-item__footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        /* Quantity Selector */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .quantity-selector button {
+            background: none;
+            border: none;
+            color: #c9c9cc;
+            cursor: pointer;
+            padding: 6px 8px;
+            transition: color 0.2s;
+        }
+
+        .quantity-selector button:hover {
+            color: #ffd380;
+        }
+
+        .quantity-selector input {
+            width: 30px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 12px;
+            padding: 0 4px;
+        }
+
+        .quantity-selector input:focus {
+            outline: none;
+        }
+
+        /* Remove Button */
+        .cart-items__remove {
+            background: none;
+            border: none;
+            color: #c9c9cc;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .cart-items__remove:hover {
+            color: #ff6b6b;
+        }
+
+        /* Loading State */
+        .cart-loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .cart-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-top-color: #ffd380;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .updating-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #ffd380;
+        }
+
+        /* Cart Footer */
+        .cart-drawer-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .cart-drawer-total {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .total-row p {
+            color: #c9c9cc;
+        }
+
+        .total-row span {
+            color: #c9c9cc;
+        }
+
+        .cart-total-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-total-price p {
+            font-family: "Sen", sans-serif;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .cart-total-price span {
+            font-family: "Sen", sans-serif;
+            font-weight: 600;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .checkout-button {
+            background-color: #ffd380;
+            color: #1a1a1e;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: "Sen", sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-button:hover {
+            opacity: 0.9;
+        }
+
+        .checkout-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Features List */
+        .features-list {
+            background: #292a33;
+            padding: 24px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: #ffd380;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a1e;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .feature-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feature-content p {
+            font-size: 13px;
+            color: #c9c9cc;
+            line-height: 1.4;
+        }
+
+        .note {
+            background: rgba(255, 211, 128, 0.1);
+            border-left: 3px solid #ffd380;
+            padding: 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #c9c9cc;
+            margin-top: 20px;
+        }
+
+        .note strong {
+            color: #ffd380;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🛒 Enhanced Cart Drawer</h1>
+            <p>Step 8: Polished UI with improved UX, accessibility, and loading states</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- State 1: Empty Cart -->
+            <div class="demo-section">
+                <div class="demo-label">State 1: Empty Cart</div>
+                <div class="cart-drawer">
+                    <div class="cart-drawer__inner">
+                        <div class="cart-drawer__header">
+                            <div class="cart-drawer__heading">Your Cart</div>
+                            <button class="close-button" title="Close cart (ESC)">✕</button>
+                        </div>
+                        <div class="cart-drawer__content">
+                            <div class="cart-empty-state">
+                                <span class="cart-drawer__heading--empty">Your cart is empty</span>
+                                <p class="cart-empty-state__description">Add products to continue shopping.</p>
+                                <button class="cart-empty-state__button">Continue Shopping</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 2: With Items -->
+            <div class="demo-section">
+                <div class="demo-label">State 2: Items In Cart</div>
+                <div class="cart-drawer">
+                    <div class="cart-drawer__inner">
+                        <div class="cart-drawer__header">
+                            <div class="cart-drawer__heading">Your Cart</div>
+                            <button class="close-button" title="Close cart (ESC)">✕</button>
+                        </div>
+                        <div class="cart-drawer__content">
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div class="cart-item__image"></div>
+                                    <div class="cart-item__content">
+                                        <div class="cart-item__title">Premium Knife Set</div>
+                                        <div class="cart-item__price">$199.99</div>
+                                        <div class="cart-item__footer">
+                                            <div class="quantity-selector">
+                                                <button>−</button>
+                                                <input type="text" value="1" readonly>
+                                                <button>+</button>
+                                            </div>
+                                            <button class="cart-items__remove" title="Remove Premium Knife Set from cart">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-drawer-footer">
+                            <div class="cart-drawer-total">
+                                <div class="total-row">
+                                    <p>Subtotal</p>
+                                    <span>$199.99</span>
+                                </div>
+                                <div class="total-row">
+                                    <p>Shipping</p>
+                                    <span>Free</span>
+                                </div>
+                            </div>
+                            <div class="cart-total-price">
+                                <p>Total</p>
+                                <span>$199.99</span>
+                            </div>
+                            <button class="checkout-button">SECURE CHECKOUT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 3: Quantity Updating -->
+            <div class="demo-section">
+                <div class="demo-label">State 3: Quantity Updating</div>
+                <div class="cart-drawer">
+                    <div class="cart-drawer__inner">
+                        <div class="cart-drawer__header">
+                            <div class="cart-drawer__heading">Your Cart</div>
+                            <button class="close-button" title="Close cart (ESC)">✕</button>
+                        </div>
+                        <div class="cart-drawer__content">
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div class="cart-item__image"></div>
+                                    <div class="cart-item__content">
+                                        <div class="cart-item__title">Premium Knife Set</div>
+                                        <div class="cart-item__price">$199.99</div>
+                                        <div class="cart-item__footer">
+                                            <div class="quantity-selector">
+                                                <button>−</button>
+                                                <input type="text" value="2" readonly>
+                                                <button>+</button>
+                                            </div>
+                                            <div class="updating-indicator">
+                                                <div class="cart-spinner"></div>
+                                                <span>Updating...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-drawer-footer">
+                            <div class="cart-drawer-total">
+                                <div class="total-row">
+                                    <p>Subtotal</p>
+                                    <span>$399.98</span>
+                                </div>
+                                <div class="total-row">
+                                    <p>Shipping</p>
+                                    <span>Free</span>
+                                </div>
+                            </div>
+                            <div class="cart-total-price">
+                                <p>Total</p>
+                                <span>$399.98</span>
+                            </div>
+                            <button class="checkout-button">SECURE CHECKOUT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 4: Loading State -->
+            <div class="demo-section">
+                <div class="demo-label">State 4: Cart Loading</div>
+                <div class="cart-drawer cart-loading">
+                    <div class="cart-drawer__inner">
+                        <div class="cart-drawer__header">
+                            <div class="cart-drawer__heading">Your Cart</div>
+                            <button class="close-button" title="Close cart (ESC)">✕</button>
+                        </div>
+                        <div class="cart-drawer__content">
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div class="cart-item__image"></div>
+                                    <div class="cart-item__content">
+                                        <div class="cart-item__title">Premium Knife Set</div>
+                                        <div class="cart-item__price">$199.99</div>
+                                        <div class="cart-item__footer">
+                                            <div class="quantity-selector">
+                                                <button disabled>−</button>
+                                                <input type="text" value="1" readonly disabled>
+                                                <button disabled>+</button>
+                                            </div>
+                                            <button class="cart-items__remove" disabled>
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-drawer-footer">
+                            <div class="cart-drawer-total">
+                                <div class="total-row">
+                                    <p>Subtotal</p>
+                                    <span>$199.99</span>
+                                </div>
+                            </div>
+                            <button class="checkout-button" disabled>SECURE CHECKOUT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Documentation -->
+        <div class="features-list">
+            <h2 style="margin-bottom: 12px; color: #ffd380;">✨ Implemented Enhancements</h2>
+
+            <div class="feature-item">
+                <div class="feature-icon">3</div>
+                <div class="feature-content">
+                    <h3>Focus Trap + ESC Close</h3>
+                    <p>Keyboard navigation stays within the drawer when open. Press ESC to close. Tab/Shift+Tab cycles through focusable elements.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">4</div>
+                <div class="feature-content">
+                    <h3>Quantity Update UX</h3>
+                    <p>Smooth quantity updates with proper error handling. Displays "Updating..." indicator with loading spinner during cart modifications.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">5</div>
+                <div class="feature-content">
+                    <h3>Loading States</h3>
+                    <p>Visual feedback with reduced opacity and disabled interactions (.cart-loading class). Animated spinner for active operations.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">6</div>
+                <div class="feature-content">
+                    <h3>Polished Empty State</h3>
+                    <p>Redesigned empty cart UI with clear heading, description text, and prominent "Continue Shopping" button. Responsive and visually appealing.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">7</div>
+                <div class="feature-content">
+                    <h3>Improved Accessibility</h3>
+                    <p>Enhanced aria-labels: "Remove [product title] from cart" for screen readers. Better semantic HTML and keyboard navigation support.</p>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>📝 Code Changes:</strong><br>
+                • <strong>assets/cart-drawer.js</strong> - Focus trap, ESC close, quantity update, loading states<br>
+                • <strong>assets/base.css</strong> - Loading state styles, spinner animation, overflow-hidden utility<br>
+                • <strong>snippets/cart-drawer.liquid</strong> - Enhanced empty state HTML and styling<br>
+                • <strong>snippets/cart-products.liquid</strong> - Improved remove button accessibility
+            </div>
+        </div>
+    </div>
+</body>
+</html>
