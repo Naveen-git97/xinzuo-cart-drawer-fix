@@ -401,6 +401,39 @@
     font-size: 16px;
     color: #c9c9cc;
   }
+
+  .cart-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .cart-empty-state__description {
+    font-family: "Inter";
+    font-size: 16px;
+    color: #c9c9cc;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .cart-empty-state__button {
+    background-color: var(--xinzuo-accent, #FFD380);
+    color: var(--xinzuo-accent-text, #1A1A1E);
+    padding: 12px 32px;
+    font-family: "Sen";
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .cart-empty-state__button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
 {% endstyle %}
 
 <cart-drawer-component
@@ -446,9 +479,19 @@
             class="cart-drawer__content motion-reduce"
             aria-label="{{ 'accessibility.cart' | t }}"
           >
-            <span class="cart-drawer__heading h3 cart-drawer__heading--empty">
-              {{ 'content.your_cart_is_empty' | t }}
-            </span>
+            <div class="cart-empty-state">
+              <span class="cart-drawer__heading h3 cart-drawer__heading--empty">
+                {{ 'content.your_cart_is_empty' | t }}
+              </span>
+
+              <p class="cart-empty-state__description">
+                Add products to continue shopping.
+              </p>
+
+              <a href="{{ settings.empty_cart_button_link | default: routes.all_products_collection_url }}" class="button cart-empty-state__button">
+                Continue Shopping
+              </a>
+            </div>
 
             <div class="cart-drawer__items">
               {% render 'cart-products' %}

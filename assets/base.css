@@ -3098,6 +3098,31 @@ fly-to-cart {
   }
 }
 
+/* Loading States */
+.cart-loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.cart-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
